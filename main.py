@@ -4,20 +4,24 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import datasets
 from torchvision.transforms import Compose, Resize, ToTensor, Normalize, Grayscale
+from torch.utils.data import DataLoader
+import torch.optim as optim
 import matplotlib.pyplot as plt
 import pydicom
 from pathlib import Path
 
 
 datafolder = Path('cancer_data') #path to all existing data
-trainingDataPath = datafolder / 'Cancer' #will have to change
+testDataPath = datafolder / 'test' #will have to change
+trainDataPath = datafolder / 'train'
+
 
 # size of images
-width = 896
+width = 128
 outl1 = 512
 
 # lets do types of eggs lol
-categories = ['Cancer', 'Healthy']
+categories = ['tumor', 'no tumor']
 out = len(categories)
 print(out)
 
@@ -33,8 +37,10 @@ val_transforms = Compose([
     ToTensor(),
 ])
 
-training_data = datasets.ImageFolder(root="C:/Users/burri/PycharmProjects/BME450/HW1/data/egg data test", transform=train_transforms)
-test_data     = datasets.ImageFolder(root="C:/Users/burri/PycharmProjects/BME450/HW1/data/egg data test",   transform=val_transforms)
+training_data = datasets.ImageFolder(root=trainDataPath, transform=train_transforms)
+test_data     = datasets.ImageFolder(root=testDataPath,   transform=val_transforms)
+
+
 
 
 class CancerCNN(nn.Module):
@@ -65,7 +71,7 @@ class CancerCNN(nn.Module):
         self.fc2 = nn.Linear(64, 2)
 
     def forward(self, x):
-        x = self.pool(F.relu(self.conv1(x)))  # 3x128x128 -> 16x64x64
+        x = self.pool(F.relu(self.conv1(x)))  # 1x128x128 -> 16x64x64
         x = self.pool(F.relu(self.conv2(x)))  # 16x64x64 -> 32x32x32
 
         x = torch.flatten(x, 1)
@@ -74,3 +80,56 @@ class CancerCNN(nn.Module):
         x = self.fc2(x)
 
         return x
+
+def trainLoop(dataloader, model, loss_fn, optimizer):
+    size = len(dataloader.dataset)
+    for batch, (X, y) in enumerate(dataloader):
+        # Compute prediction and loss
+        pred = model(X)
+        loss = loss_fn(pred, y)
+
+        # Backpropagation
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+        if batch % 100 == 0:
+            loss, current = loss.item(), (batch + 1) * len(X)
+            print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
+
+
+def test_loop(dataloader, model, loss_fn):
+    size = len(dataloader.dataset)
+    num_batches = len(dataloader)
+    test_loss, correct = 0, 0
+
+    with torch.no_grad():
+        for X, y in dataloader:
+            pred = model(X)
+            test_loss += loss_fn(pred, y).item()
+            correct += (pred.argmax(1) == y).type(torch.float).sum().item()
+
+batch_size = 10
+train_dataloader = DataLoader(training_data, batch_size=batch_size)
+test_dataloader = DataLoader(test_data, batch_size=batch_size)
+
+# Check dataset info
+print("Training classes:", training_data.classes)
+print("Class to index:", training_data.class_to_idx)
+print("Number of training images:", len(training_data))
+print("Number of test images:", len(test_data))
+
+model = CancerCNN()
+
+# Loss function and optimizer
+learning_rate = 0.001
+loss_fn = nn.CrossEntropyLoss()
+optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+
+
+epochs = 15
+for t in range(epochs):
+    print(f"Epoch {t+1}\n-------------------------------")
+    trainLoop(train_dataloader, model, loss_fn, optimizer)
+    test_loop(test_dataloader, model, loss_fn)
+print("Done!")
