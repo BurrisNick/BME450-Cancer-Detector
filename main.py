@@ -5,7 +5,9 @@ import torch.nn.functional as F
 from torchvision import datasets
 from torchvision.transforms import Compose, Resize, ToTensor, Normalize, Grayscale
 import matplotlib.pyplot as plt
+import pydicom
 
+image = 
 
 # size of images
 width = 28
