@@ -6,31 +6,34 @@ from torchvision import datasets
 from torchvision.transforms import Compose, Resize, ToTensor, Normalize, Grayscale
 import matplotlib.pyplot as plt
 import pydicom
+from pathlib import Path
 
-image = 
+
+datafolder = Path('cancer_data') #path to all existing data
+trainingDataPath = datafolder / 'Cancer' #will have to change
 
 # size of images
-width = 28
+width = 896
 outl1 = 512
 
 # lets do types of eggs lol
-categories = ['regular', 'fried', 'scrambled']
+categories = ['Cancer', 'Healthy']
 out = len(categories)
 print(out)
 
 train_transforms = Compose([
-    Resize((28, 28)),   # or (224, 224) if using ResNet-style models
+    Resize((width, width)),   # or (224, 224) if using ResNet-style models
     Grayscale(num_output_channels=1),
     ToTensor(),
 ])
 
 val_transforms = Compose([
-    Resize((28, 28)),
+    Resize((width, width)),
     Grayscale(num_output_channels=1),
     ToTensor(),
 ])
 
-training_data = datasets.ImageFolder(root="C:/Users/burri/PycharmProjects/BME450/HW1/data/egg data train", transform=train_transforms)
+training_data = datasets.ImageFolder(root="C:/Users/burri/PycharmProjects/BME450/HW1/data/egg data test", transform=train_transforms)
 test_data     = datasets.ImageFolder(root="C:/Users/burri/PycharmProjects/BME450/HW1/data/egg data test",   transform=val_transforms)
 
 
@@ -38,9 +41,9 @@ class CancerCNN(nn.Module):
     def __init__(self):
         super(CancerCNN, self).__init__()
 
-        # Input: 3 x 128 x 128 image
+        # Input: 1 x 128 x 128 image
         self.conv1 = nn.Conv2d(
-            in_channels=3,
+            in_channels=1,
             out_channels=16,
             kernel_size=3,
             padding=1
