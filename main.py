@@ -2,6 +2,35 @@ import matplotlib
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torchvision import datasets
+from torchvision.transforms import Compose, Resize, ToTensor, Normalize, Grayscale
+import matplotlib.pyplot as plt
+
+
+# size of images
+width = 28
+outl1 = 512
+
+# lets do types of eggs lol
+categories = ['regular', 'fried', 'scrambled']
+out = len(categories)
+print(out)
+
+train_transforms = Compose([
+    Resize((28, 28)),   # or (224, 224) if using ResNet-style models
+    Grayscale(num_output_channels=1),
+    ToTensor(),
+])
+
+val_transforms = Compose([
+    Resize((28, 28)),
+    Grayscale(num_output_channels=1),
+    ToTensor(),
+])
+
+training_data = datasets.ImageFolder(root="C:/Users/burri/PycharmProjects/BME450/HW1/data/egg data train", transform=train_transforms)
+test_data     = datasets.ImageFolder(root="C:/Users/burri/PycharmProjects/BME450/HW1/data/egg data test",   transform=val_transforms)
+
 
 class CancerCNN(nn.Module):
     def __init__(self):
