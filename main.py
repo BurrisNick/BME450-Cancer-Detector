@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import datasets
+<<<<<<< Updated upstream
 from torchvision.transforms import Compose, Resize, ToTensor, Normalize, Grayscale, RandomRotation, RandomAffine
 from torch.utils.data import DataLoader
 import torch.optim as optim
@@ -23,10 +24,25 @@ outl1 = 512
 
 # lets do types of eggs lol
 categories = ['tumor', 'no tumor']
+=======
+from torchvision.transforms import Compose, Resize, ToTensor, Normalize, Grayscale
+import matplotlib.pyplot as plt
+import pydicom
+
+image = 
+
+# size of images
+width = 28
+outl1 = 512
+
+# lets do types of eggs lol
+categories = ['regular', 'fried', 'scrambled']
+>>>>>>> Stashed changes
 out = len(categories)
 print(out)
 
 train_transforms = Compose([
+<<<<<<< Updated upstream
     Resize((width, width)),   # or (224, 224) if using ResNet-style models
     Grayscale(num_output_channels=1),
     RandomRotation(10),
@@ -37,14 +53,28 @@ train_transforms = Compose([
 
 val_transforms = Compose([
     Resize((width, width)),
+=======
+    Resize((28, 28)),   # or (224, 224) if using ResNet-style models
     Grayscale(num_output_channels=1),
     ToTensor(),
 ])
 
+val_transforms = Compose([
+    Resize((28, 28)),
+>>>>>>> Stashed changes
+    Grayscale(num_output_channels=1),
+    ToTensor(),
+])
+
+<<<<<<< Updated upstream
 training_data = datasets.ImageFolder(root=trainDataPath, transform=train_transforms)
 test_data     = datasets.ImageFolder(root=testDataPath,   transform=val_transforms)
 
 
+=======
+training_data = datasets.ImageFolder(root="C:/Users/burri/PycharmProjects/BME450/HW1/data/egg data train", transform=train_transforms)
+test_data     = datasets.ImageFolder(root="C:/Users/burri/PycharmProjects/BME450/HW1/data/egg data test",   transform=val_transforms)
+>>>>>>> Stashed changes
 
 
 class CancerCNN(nn.Module):
